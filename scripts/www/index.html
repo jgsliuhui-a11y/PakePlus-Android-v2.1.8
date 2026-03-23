@@ -1,11 +1,1064 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>崩坏：星穹铁道 一番赏模拟器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6b4c9a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6b4c9a;
+            --secondary: #9b7bc7;
+            --accent: #ffd700;
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text: #eee;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, #2d1b4e 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, #1a1a2e 0%, #0f0f1a 100%);
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* 选箱界面 */
+        .box-select {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .box-select h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+        
+        .sort-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            background: var(--card-bg);
+            border: 1px solid var(--secondary);
+            color: var(--text);
+        }
+        
+        .sort-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .box-input-area {
+            margin: 15px 0;
+        }
+        
+        .box-input-area input {
+            width: 180px;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            border: 2px solid var(--primary);
+            border-radius: 50px;
+            background: var(--card-bg);
+            color: var(--text);
+            text-align: center;
+            font-family: inherit;
+        }
+        
+        .box-input-area button {
+            margin-left: 10px;
+            padding: 10px 20px;
+        }
+        
+        .box-group {
+            margin-bottom: 20px;
+        }
+        
+        .box-group-title {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            text-align: left;
+            padding-left: 10px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 12px;
+            padding: 10px;
+        }
+        
+        .box-item {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--card-bg), #1e2a4a);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            padding: 10px;
+            min-width: 0;
+        }
+        
+        .box-item:hover {
+            border-color: var(--secondary);
+            transform: scale(1.05);
+        }
+        
+        .box-item.selected {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        
+        .box-item.opened {
+            opacity: 0.7;
+            background: #2a2a3e;
+        }
+        
+        .box-item .box-num {
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        
+        .box-item .box-remain {
+            font-size: 0.65rem;
+            color: #888;
+        }
+        
+        .box-item.opened .box-remain {
+            color: #666;
+        }
+        
+        .box-item.sort-top {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .box-stats {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+        
+        /* 抽奖界面 */
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .header-with-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .current-box {
+            background: var(--card-bg);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid var(--secondary);
+            transition: all 0.3s;
+        }
+        
+        .current-box:hover {
+            border-color: var(--accent);
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: #888;
+            flex-wrap: wrap;
+        }
+        
+        .ticket-area {
+            margin: 20px 0;
+        }
+        
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .ticket {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border: 3px solid transparent;
+        }
+        
+        .ticket:hover {
+            transform: scale(1.05);
+        }
+        
+        .ticket.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .ticket.opened {
+            background: var(--card-bg);
+            cursor: default;
+        }
+        
+        .ticket.opened .ticket-content {
+            display: block;
+        }
+        
+        .ticket-content {
+            display: none;
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 5px;
+        }
+        
+        .ticket-content .rank {
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        
+        .ticket-content .name {
+            font-size: 0.65rem;
+            color: #aaa;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-weight: 700;
+        }
+        
+        .btn-open {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-all {
+            background: linear-gradient(135deg, #e91e63, #ff6b6b);
+            color: white;
+        }
+        
+        .btn-open:disabled, .btn-all:disabled, .btn-box:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-reset {
+            background: #333;
+            color: #888;
+        }
+        
+        .btn-box {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--secondary);
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(155, 123, 199, 0.4);
+        }
+        
+        .selection-info {
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+        
+        .selection-info span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .result-display {
+            min-height: 50px;
+            margin: 20px 0;
+        }
+        
+        .prize-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .prize-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px 20px;
+            animation: slideIn 0.3s ease;
+            border: 1px solid #333;
+            text-align: center;
+        }
+        
+        .prize-card.dc {
+            border-color: #ff4757;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+        }
+        
+        .prize-card.last {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .prize-card.abc {
+            background: linear-gradient(135deg, #2d1b4e, #4a2c7a);
+            border-color: #9b7bc7;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .prize-rank-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        
+        .rank-a { background: #ffd700; color: #1a1a2e; }
+        .rank-b { background: #c0c0c0; color: #1a1a2e; }
+        .rank-c { background: #cd7f32; color: #1a1a2e; }
+        .rank-d { background: #e91e63; }
+        .rank-e { background: #2196f3; }
+        .rank-f { background: #4caf50; }
+        .rank-g { background: #9c27b0; }
+        .rank-h { background: #ff9800; }
+        .rank-last { background: linear-gradient(135deg, #ffd700, #ff6b6b); color: #1a1a2e; }
+        .rank-dc { background: #ff4757; }
+        
+        .history {
+            margin-top: 30px;
+        }
+        
+        .history h2 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .history-empty {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .history-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            border: 1px solid #333;
+        }
+        
+        .history-card.dc {
+            border-color: #ff4757;
+        }
+        
+        .history-card.last {
+            border-color: var(--accent);
+        }
+        
+        .probability-info {
+            margin-top: 30px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        
+        .probability-info h3 {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .prob-table {
+            width: 100%;
+            font-size: 0.8rem;
+        }
+        
+        .prob-table tr:nth-child(even) {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .prob-table td {
+            padding: 6px;
+            text-align: center;
+        }
+        
+        .prob-table td:first-child {
+            text-align: left;
+        }
+        
+        .remaining-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #888;
+            font-size: 0.8rem;
+        }
+        
+        .remaining-info span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .price-tag {
+            font-size: 0.85rem;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 选箱界面 -->
+        <div id="boxSelectScreen" class="box-select">
+            <h1>🎰 崩坏：星穹铁道 一番赏</h1>
+            <p style="color:#888;margin-bottom:15px">共 2000 箱</p>
+            
+            <div class="sort-controls">
+                <button class="sort-btn" onclick="setSortMode('default')" id="sortDefault">默认排序</button>
+                <button class="sort-btn" onclick="setSortMode('remaining')" id="sortRemaining">剩余总量</button>
+                <button class="sort-btn" onclick="setSortMode('abc')" id="sortABC">A-H赏</button>
+            </div>
+            
+            <div class="box-input-area">
+                <select id="groupSelect" onchange="changeGroup(this.value)" style="
+                    padding: 10px 18px;
+                    font-size: 0.9rem;
+                    border: 2px solid var(--primary);
+                    border-radius: 50px;
+                    background: var(--card-bg);
+                    color: var(--text);
+                    font-family: inherit;
+                    cursor: pointer;
+                ">
+                </select>
+            </div>
+            
+            <div class="box-grid" id="boxGrid"></div>
+            
+            <div class="box-stats" id="boxStats"></div>
+        </div>
+        
+        <!-- 抽奖界面 -->
+        <div id="gachaScreen" class="hidden">
+            <header>
+                <div class="header-with-box">
+                    <h1>🎰 崩坏：星穹铁道 一番赏</h1>
+                    <div class="current-box" onclick="backToBoxSelect()">
+                        箱号: <span id="currentBoxNum">1</span> ▼
+                    </div>
+                </div>
+                <div class="stats">
+                    <span>已开: <span id="drawnCount">0</span>张</span>
+                    <span>剩余: <span id="remainingCount">72</span>张</span>
+                </div>
+                <div class="price-tag">单抽 ¥58 | 10连 ¥580</div>
+            </header>
+            
+            <div class="ticket-area">
+                <div class="selection-info">已选择 <span id="selectedCount">0</span> 张奖券 (¥<span id="selectedPrice">0</span>)</div>
+                <div class="ticket-grid" id="ticketGrid"></div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn-open" id="btnOpen" onclick="openSelected()" disabled>开 奖</button>
+                <button class="btn-all" id="btnAll" onclick="openAll()" disabled>全 收</button>
+                <button class="btn-reset" onclick="resetBox()">重置</button>
+            </div>
+            
+            <div class="result-display" id="resultDisplay"></div>
+            
+            <div class="remaining-info" id="remainingInfo">
+                剩余: <span id="remainList"></span>
+            </div>
+            
+            <div class="history">
+                <h2>📜 开奖记录</h2>
+                <div class="history-list" id="historyList">
+                    <p class="history-empty">暂无记录</p>
+                </div>
+            </div>
+            
+            <div class="probability-info">
+                <h3>📊 实时概率 (剩余奖池)</h3>
+                <table class="prob-table" id="probTable">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_BOXES = 2000;
+        const TOTAL_TICKETS = 72;
+        const PRICE_SINGLE = 58;
+        const DC_BOX_PROBABILITY = 0.08;
+        
+        const prizePool = {
+            A: { name: '昔链毛绒玩偶', itemName: '毛绒玩偶', count: 2, rank: 'A', color: 'rank-a' },
+            B: { name: '白厄毛绒玩偶', itemName: '毛绒玩偶', count: 2, rank: 'B', color: 'rank-b' },
+            C: { name: '万敌毛绒玩偶', itemName: '毛绒玩偶', count: 2, rank: 'C', color: 'rank-c' },
+            D: { name: ['那刻夏', '昔链', '万敌', '风瑾', '白厄', '赛飞儿'], itemName: '亚克力彩画', count: 6, rank: 'D', color: 'rank-d' },
+            E: { name: ['万敌', '白厄', '那刻夏', '风瑾', '遐蝶', '长月夜', '丹恒·腾荒', '昔链'], itemName: '毛绒腕带', count: 8, rank: 'E', color: 'rank-e' },
+            F: { name: ['阿格莱雅', '提宝', '万敌', '遐蝶', '那刻夏', '风瑾', '赛飞儿', '白厄', '海瑟音', '刻律德菈', '长月夜', '丹恒·腾荒', '昔链'], itemName: '陶瓷碟', count: 13, rank: 'F', color: 'rank-f' },
+            G: { name: ['阿格莱雅', '提宝', '万敌', '遐蝶', '那刻夏', '风瑾', '赛飞儿', '白厄', '海瑟音', '刻律德菈', '长月夜', '丹恒·腾荒', '昔链'], itemName: '闪粉亚克力挂摆件', count: 26, rank: 'G', color: 'rank-g' },
+            H: { name: ['阿格莱雅', '提宝', '万敌', '遐蝶', '那刻夏', '风瑾', '赛飞儿', '白厄', '海瑟音', '刻律德菈', '长月夜', '丹恒·腾荒', '昔链'], itemName: '文件夹&票夹套装', count: 13, rank: 'H', color: 'rank-h' }
+        };
+        
+        // 存储所有箱子的数据
+        let boxData = {};
+        let currentBox = null;
+        let sortMode = 'default';
+        let currentGroup = 1;
+        const TOTAL_GROUPS = Math.ceil(TOTAL_BOXES / 100);
+        
+        // 当前箱子数据引用
+        let tickets = [];
+        let selectedTickets = new Set();
+        let history = [];
+        let hasDCInBox = false;
+        let remaining = {};
+        
+        function init() {
+            initGroupSelect();
+            renderBoxGrid();
+            updateBoxStats();
+        }
+        
+        function initGroupSelect() {
+            const select = document.getElementById('groupSelect');
+            select.innerHTML = '';
+            for (let g = 1; g <= TOTAL_GROUPS; g++) {
+                const start = (g-1) * 100 + 1;
+                const end = Math.min(g * 100, TOTAL_BOXES);
+                select.innerHTML += `<option value="${g}">第 ${start}-${end} 箱</option>`;
+            }
+        }
+        
+        function changeGroup(val) {
+            currentGroup = parseInt(val);
+            renderBoxGrid();
+        }
+        
+        function setSortMode(mode) {
+            sortMode = mode;
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('sort' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+            renderBoxGrid();
+        }
+        
+        function getBoxInfo(boxNum) {
+            if (!boxData[boxNum]) {
+                // 预估剩余（未开=72）
+                return { openedCount: 0, remaining: 72, abcRemaining: 72 };
+            }
+            const opened = boxData[boxNum].openedCount || 0;
+            const remaining = TOTAL_TICKETS - opened;
+            
+            // 计算A-H赏剩余
+            let abcRemaining = 0;
+            const rem = boxData[boxNum].remaining;
+            if (rem) {
+                for (let key in rem) {
+                    if (key !== 'LAST') {
+                        abcRemaining += rem[key].count || 0;
+                    }
+                }
+            } else {
+                abcRemaining = remaining;
+            }
+            
+            return { 
+                openedCount: opened, 
+                remaining: remaining,
+                abcRemaining: abcRemaining
+            };
+        }
+        
+        function renderBoxGrid() {
+            const grid = document.getElementById('boxGrid');
+            grid.innerHTML = '';
+            
+            // 获取当前组的箱号范围
+            const startBox = (currentGroup - 1) * 100 + 1;
+            const endBox = Math.min(currentGroup * 100, TOTAL_BOXES);
+            
+            let boxOrder = [];
+            for (let i = startBox; i <= endBox; i++) {
+                boxOrder.push(i);
+            }
+            
+            // 排序（仅在当前组内排序）
+            if (sortMode === 'remaining') {
+                boxOrder.sort((a, b) => {
+                    const infoA = getBoxInfo(a);
+                    const infoB = getBoxInfo(b);
+                    return infoB.remaining - infoA.remaining;
+                });
+            } else if (sortMode === 'abc') {
+                boxOrder.sort((a, b) => {
+                    const infoA = getBoxInfo(a);
+                    const infoB = getBoxInfo(b);
+                    return infoB.abcRemaining - infoA.abcRemaining;
+                });
+            }
+            
+            // 渲染当前组
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'box-group';
+            groupDiv.innerHTML = `<div class="box-group-title">第 ${startBox} - ${endBox} 箱</div>`;
+            
+            const groupGrid = document.createElement('div');
+            groupGrid.className = 'box-grid';
+            
+            boxOrder.forEach(i => {
+                const info = getBoxInfo(i);
+                const el = document.createElement('div');
+                el.className = 'box-item';
+                if (currentBox === i) el.classList.add('selected');
+                if (info.openedCount > 0) el.classList.add('opened');
+                
+                // 排序时高亮前10个
+                if (sortMode !== 'default' && boxOrder.indexOf(i) < 10) {
+                    el.classList.add('sort-top');
+                }
+                
+                el.innerHTML = `
+                    <span class="box-num">${i}</span>
+                    <span class="box-remain">${info.remaining}/72</span>
+                `;
+                el.onclick = () => goToBoxNumber(i);
+                groupGrid.appendChild(el);
+            });
+            
+            groupDiv.appendChild(groupGrid);
+            grid.appendChild(groupDiv);
+        }
+        
+        function updateBoxStats() {
+            let openedBoxes = 0;
+            let totalOpened = 0;
+            for (let i = 1; i <= TOTAL_BOXES; i++) {
+                if (boxData[i] && boxData[i].openedCount > 0) {
+                    openedBoxes++;
+                    totalOpened += boxData[i].openedCount || 0;
+                }
+            }
+            document.getElementById('boxStats').textContent = 
+                `已开启: ${openedBoxes} 箱 | 共抽取: ${totalOpened} 张`;
+        }
+        
+        function goToBox() {
+            const input = document.getElementById('boxNumberInput');
+            const num = parseInt(input.value);
+            if (num >= 1 && num <= TOTAL_BOXES) {
+                goToBoxNumber(num);
+            } else {
+                alert(`请输入 1-${TOTAL_BOXES} 之间的数字`);
+            }
+        }
+        
+        function goToBoxNumber(num) {
+            // 保存当前箱子数据
+            if (currentBox !== null) {
+                saveCurrentBox();
+            }
+            
+            currentBox = num;
+            
+            // 初始化或加载箱子数据
+            if (!boxData[num]) {
+                initBoxData(num);
+            } else {
+                loadBoxData(num);
+            }
+            
+            document.getElementById('boxSelectScreen').classList.add('hidden');
+            document.getElementById('gachaScreen').classList.remove('hidden');
+            document.getElementById('currentBoxNum').textContent = num;
+            
+            renderTickets();
+            updateUI();
+            renderBoxGrid();
+        }
+        
+        function backToBoxSelect() {
+            saveCurrentBox();
+            currentBox = null;
+            
+            document.getElementById('gachaScreen').classList.add('hidden');
+            document.getElementById('boxSelectScreen').classList.remove('hidden');
+            
+            renderBoxGrid();
+            updateBoxStats();
+            setSortMode(sortMode); // 保持排序
+        }
+        
+        function initBoxData(boxNum) {
+            // 重新生成奖池
+            let pool = [];
+            for (let key in prizePool) {
+                for (let i = 0; i < prizePool[key].count; i++) {
+                    pool.push(key);
+                }
+            }
+            
+            // 随机打乱
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            
+            // DC赏
+            const hasDC = Math.random() < DC_BOX_PROBABILITY;
+            let dcIndex = -1;
+            if (hasDC) {
+                dcIndex = Math.floor(Math.random() * TOTAL_TICKETS);
+            }
+            
+            boxData[boxNum] = {
+                tickets: pool.map((prizeKey, i) => ({
+                    id: i,
+                    prizeKey: prizeKey,
+                    opened: false,
+                    prize: null,
+                    isDC: (i === dcIndex)
+                })),
+                history: [],
+                hasDCInBox: hasDC,
+                remaining: JSON.parse(JSON.stringify(prizePool)),
+                openedCount: 0
+            };
+            
+            loadBoxData(boxNum);
+        }
+        
+        function loadBoxData(boxNum) {
+            const data = boxData[boxNum];
+            tickets = data.tickets;
+            history = data.history;
+            hasDCInBox = data.hasDCInBox;
+            remaining = data.remaining;
+            selectedTickets = new Set();
+        }
+        
+        function saveCurrentBox() {
+            if (currentBox === null || !boxData[currentBox]) return;
+            
+            boxData[currentBox].tickets = tickets;
+            boxData[currentBox].history = history;
+            boxData[currentBox].hasDCInBox = hasDCInBox;
+            boxData[currentBox].remaining = remaining;
+            boxData[currentBox].openedCount = tickets.filter(t => t.opened).length;
+            
+            updateBoxStats();
+        }
+        
+        function renderTickets() {
+            const grid = document.getElementById('ticketGrid');
+            grid.innerHTML = '';
+            
+            tickets.forEach((ticket, index) => {
+                const el = document.createElement('div');
+                el.className = 'ticket' + (selectedTickets.has(index) ? ' selected' : '') + (ticket.opened ? ' opened' : '');
+                
+                if (ticket.opened && ticket.prize) {
+                    const prize = ticket.prize;
+                    const displayName = prize.itemName ? `${prize.itemName} - ${prize.name}` : prize.name;
+                    el.innerHTML = `
+                        <div class="ticket-content">
+                            <div class="rank ${prize.color}">${prize.rank}赏</div>
+                            <div class="name">${displayName}</div>
+                            ${prize.isDC ? '<div style="color:#ff4757;font-size:0.6rem">DC</div>' : ''}
+                        </div>
+                    `;
+                } else {
+                    el.textContent = '?';
+                }
+                
+                if (!ticket.opened) {
+                    el.onclick = () => toggleSelect(index);
+                }
+                
+                grid.appendChild(el);
+            });
+        }
+        
+        function toggleSelect(index) {
+            if (tickets[index].opened) return;
+            
+            if (selectedTickets.has(index)) {
+                selectedTickets.delete(index);
+            } else {
+                selectedTickets.add(index);
+            }
+            
+            renderTickets();
+            updateSelectionInfo();
+        }
+        
+        function updateSelectionInfo() {
+            const count = selectedTickets.size;
+            const opened = tickets.filter(t => t.opened).length;
+            const remaining = TOTAL_TICKETS - opened;
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('selectedPrice').textContent = count * PRICE_SINGLE;
+            document.getElementById('btnOpen').disabled = count === 0;
+            document.getElementById('btnAll').disabled = remaining === 0;
+        }
+        
+        function openSelected() {
+            if (selectedTickets.size === 0) return;
+            
+            const openedCount = tickets.filter(t => t.opened).length;
+            const willBeLast = (openedCount + selectedTickets.size) >= TOTAL_TICKETS;
+            
+            const results = [];
+            
+            selectedTickets.forEach(index => {
+                const ticket = tickets[index];
+                const prizeKey = ticket.prizeKey;
+                let prizeName = remaining[prizeKey].name;
+                let itemName = remaining[prizeKey].itemName;
+                
+                if (Array.isArray(prizeName)) {
+                    prizeName = prizeName[Math.floor(Math.random() * prizeName.length)];
+                }
+                
+                const prize = {
+                    key: prizeKey,
+                    name: prizeName,
+                    itemName: itemName,
+                    fullName: `${prizeKey}赏 - ${itemName} - ${prizeName}`,
+                    rank: remaining[prizeKey].rank,
+                    color: remaining[prizeKey].color,
+                    isDC: ticket.isDC,
+                    isLast: false,
+                    ticketIndex: index
+                };
+                
+                ticket.opened = true;
+                ticket.prize = prize;
+                remaining[prizeKey].count--;
+                history.unshift(prize);
+                results.push(prize);
+            });
+            
+            // 最后一抽赠送LAST赏
+            if (willBeLast) {
+                const lastPrize = {
+                    key: 'LAST',
+                    name: '卡厄斯兰那',
+                    itemName: '毛绒玩偶',
+                    fullName: 'LAST赏 - 毛绒玩偶 - 卡厄斯兰那',
+                    rank: 'LAST',
+                    color: 'rank-last',
+                    isDC: false,
+                    isLast: true,
+                    isBonus: true,
+                    ticketIndex: -1
+                };
+                results.push(lastPrize);
+                history.unshift(lastPrize);
+            }
+            
+            selectedTickets.clear();
+            renderTickets();
+            displayResults(results);
+            updateUI();
+        }
+        
+        function openAll() {
+            const remaining = TOTAL_TICKETS - tickets.filter(t => t.opened).length;
+            if (remaining === 0) return;
+            
+            selectedTickets.clear();
+            tickets.forEach((ticket, index) => {
+                if (!ticket.opened) {
+                    selectedTickets.add(index);
+                }
+            });
+            
+            openSelected();
+        }
+        
+        function displayResults(results) {
+            const display = document.getElementById('resultDisplay');
+            display.innerHTML = '<div class="prize-cards">' + results.map(prize => `
+                <div class="prize-card ${prize.color} ${prize.isDC ? 'dc' : ''} ${prize.isLast ? 'last' : ''}">
+                    <span class="prize-rank-tag ${prize.color}">${prize.rank}赏</span>
+                    ${prize.itemName ? prize.itemName + ' - ' + prize.name : prize.name}
+                    ${prize.isDC ? '<br><span style="color:#ff4757">★ DC赏 ★</span>' : ''}
+                    ${prize.isLast ? '<br><span style="color:#ffd700">★ LAST赏 ★</span>' : ''}
+                </div>
+            `).join('') + '</div>';
+        }
+        
+        function updateUI() {
+            const openedCount = tickets.filter(t => t.opened).length;
+            document.getElementById('drawnCount').textContent = openedCount;
+            document.getElementById('remainingCount').textContent = TOTAL_TICKETS - openedCount;
+            updateSelectionInfo();
+            updateRemainingDisplay();
+            updateHistory();
+            updateProbability();
+        }
+        
+        function updateRemainingDisplay() {
+            const list = [];
+            for (let key in remaining) {
+                if (remaining[key].count > 0) {
+                    list.push(`${remaining[key].rank}赏: ${remaining[key].count}`);
+                }
+            }
+            document.getElementById('remainList').textContent = list.join(', ') || '已抽完';
+        }
+        
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            if (history.length === 0) {
+                historyList.innerHTML = '<p class="history-empty">暂无记录</p>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(prize => `
+                <div class="history-card ${prize.color} ${prize.isDC ? 'dc' : ''} ${prize.isLast ? 'last' : ''}">
+                    <span class="prize-rank-tag ${prize.color}">${prize.rank}赏</span>
+                    ${prize.itemName ? prize.itemName + ' - ' + prize.name : prize.name}
+                    ${prize.isDC ? ' <span style="color:#ff4757">DC</span>' : ''}
+                    ${prize.isLast ? ' <span style="color:#ffd700">LAST</span>' : ''}
+                </div>
+            `).join('');
+        }
+        
+        function updateProbability() {
+            const openedCount = tickets.filter(t => t.opened).length;
+            const remainingTickets = TOTAL_TICKETS - openedCount;
+            const probTable = document.getElementById('probTable');
+            
+            let html = '';
+            for (let key in remaining) {
+                const count = remaining[key].count;
+                const prob = remainingTickets > 0 ? ((count / remainingTickets) * 100).toFixed(2) : 0;
+                const itemName = prizePool[key].itemName;
+                
+                html += `<tr>
+                    <td>${key}赏 (${itemName})</td>
+                    <td>${count}/${remainingTickets} (${prob}%)</td>
+                </tr>`;
+            }
+            
+            // LAST赏
+            if (openedCount >= TOTAL_TICKETS) {
+                html += `<tr><td style="color:#ffd700">LAST赏</td><td style="color:#ffd700">已获得</td></tr>`;
+            } else {
+                html += `<tr><td style="color:#ffd700">LAST赏</td><td style="color:#ffd700">第72抽赠送</td></tr>`;
+            }
+            
+            probTable.innerHTML = html;
+        }
+        
+        function resetBox() {
+            if (tickets.some(t => t.opened) && !confirm('确定要重置当前箱子吗？')) return;
+            
+            const boxNum = currentBox;
+            delete boxData[boxNum];
+            initBoxData(boxNum);
+            renderTickets();
+            updateUI();
+            renderBoxGrid();
+            
+            document.getElementById('resultDisplay').innerHTML = '';
+        }
+        
+        init();
+    </script>
+</body>
 </html>
